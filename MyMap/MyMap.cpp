@@ -16,7 +16,6 @@ void result(const std::map<char, int>& mmap, const std::vector < std::vector<cha
 			int valuePow = pow(10, vect[i].size() - 1 - j);
 			res[i] += (valueMap * valuePow);
 		}
-		//std::cout << res[i] << std::endl;
 	}
 	if (res[0] + res[1] == res[2]) {
 		int count = 0;
@@ -39,14 +38,17 @@ void result(const std::map<char, int>& mmap, const std::vector < std::vector<cha
 
 int main()
 {
-	std::map<char, int> myMap;
-	std::string str = "abcd + efgd = efhdi";
+	std::string mainString = "abcd + efgd = efhdi";
+	
+	//все символы из строки
+	std::map<char, int> charInString;
+
+	//вектор, содержащий по-отдельности каждое число (набор символов), которое представлено в строке mainString
 	std::vector<std::vector<char>> expres(3);
 	int count = 0;
-	int countVal = 0;
-	for (auto it = str.begin(); it != str.end(); ++it) {
+	for (auto it = mainString.begin(); it != mainString.end(); ++it) {
 		if (isalpha(*it)) {
-			myMap.insert(std::pair<char, int>(*it, 0));
+			charInString.insert(std::pair<char, int>(*it, 0));
 			expres[count].push_back(*it);
 		}
 		else if (!isspace(*it)) {
@@ -54,18 +56,22 @@ int main()
 		}
 	}
 
-	for (auto it = myMap.begin(); it != myMap.end(); ++it) {
+	//инициализируем все переменные цифрами от 0 до 8
+	int countVal = 0;
+	for (auto it = charInString.begin(); it != charInString.end(); ++it) {
 		it->second = countVal++;
 	}
 
+	//вектор необходим для генерации чисел функции next_permutation
+	//короче код говно, нужно заново все писать
 	std::vector<int> vectс = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 	do {
 		int i = 0;
-		for (auto it = myMap.begin(); it != myMap.end(); ++it) {
+		for (auto it = charInString.begin(); it != charInString.end(); ++it) {
 			it->second = vectс[i++];
 		}
-		result(myMap, expres);
+		result(charInString, expres);
 	} while (next_permutation(vectс.begin(), vectс.end()));
 
 	/*myMap.at('a') = 2;
