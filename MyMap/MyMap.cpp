@@ -4,6 +4,7 @@
 #include <map>
 #include <cmath>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
@@ -32,13 +33,33 @@ void result(const std::map<char, int>& mmap, const std::vector < std::vector<cha
 				count++;
 			}
 		}
+		if (res[0] + res[1] == res[2]) {
+			std::cout << " <=======";
+		}
 		std::cout << '\n';
 	}
 }
 
+void second_func(std::vector<int>& vect, int& i) {
+	if (vect[vect.size() - 1] == 10 && i > 0) {
+		--i;
+		++vect[i];
+		for (int j = i; j < vect.size() - 1; ++j) {
+			vect[j + 1] = vect[j] + 1;
+		}
+		if (vect[vect.size() - 1] == 10 && i > 0) {
+			second_func(vect, i);
+		}
+		i = vect.size() - 1;
+	}
+}
+
+
 int main()
 {
-	std::string mainString = "abcd + efgd = efhdi";
+	unsigned int start_time = clock();
+
+	std::string mainString = "a + b = c";
 	
 	//все символы из строки
 	std::map<char, int> charInString;
@@ -64,16 +85,32 @@ int main()
 
 	//вектор необходим для генерации чисел функции next_permutation
 	//короче код говно, нужно заново все писать
-	std::vector<int> vectс = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+
+	std::vector<int> vectс;// = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	for (int i = 0; i < charInString.size(); ++i) {
+		vectс.push_back(i);
+	}
+
+	int index = vectс.size() - 1;
 
 	do {
-		int i = 0;
-		for (auto it = charInString.begin(); it != charInString.end(); ++it) {
-			it->second = vectс[i++];
-		}
-		result(charInString, expres);
-	} while (next_permutation(vectс.begin(), vectс.end()));
-
+		do {
+			int i = 0;
+			for (auto it = charInString.begin(); it != charInString.end(); ++it) {
+				it->second = vectс[i++];
+				//std::cout << vectс[i++];
+			}
+			//std::cout << "\n";
+			result(charInString, expres);
+		} while (next_permutation(vectс.begin(), vectс.end()));
+		
+		//print(vect);
+		vectс[index]++;
+		second_func(vectс, index);
+	} while (vectс[vectс.size() - 1] != 10);
+	unsigned int end_time = clock();
+	std::cout << (end_time - start_time) / 1000.f;
 	/*myMap.at('a') = 2;
 	myMap.at('b') = 7;
 	myMap.at('c') = 5;
