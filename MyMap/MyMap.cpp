@@ -1,129 +1,141 @@
 ﻿#include <iostream>
 #include <vector>
-#include <utility>
-#include <map>
 #include <cmath>
 #include <algorithm>
 #include <ctime>
+#include <cstdio>
+#include <sstream>
 
 using namespace std;
 
-void result(const std::map<char, int>& mmap, const std::vector < std::vector<char>>& vect) {
-	std::vector<int> res(vect.size(), 0);
+const int MAXSYMBOLS = 10;
 
-	for (int i = 0; i < vect.size(); ++i) {
-		for (int j = 0; j < vect[i].size(); ++j) {
-			int valueMap = mmap.at(vect[i][j]);
-			int valuePow = pow(10, vect[i].size() - 1 - j);
+void print(const std::vector<int>& symbols, const std::vector< std::vector<int>>& values) {
+
+	int count = 0;
+
+	for (auto it : values) {
+		for (auto jt : it) {
+			printf("%d", symbols[jt]);
+		}
+		if (count == 0) {
+			printf("%s", " + ");
+			count++;
+		}
+		else if (count == 1) {
+			printf("%s", " = ");
+			count++;
+		}
+	}
+	printf("%s", "\n");
+}
+
+//check values
+void result(const std::vector<int>& symbols, const std::vector< std::vector<int>>& values) {
+	std::vector<int> res(values.size(), 0);
+
+	for (int i = 0; i < values.size(); ++i) {
+		for (int j = 0; j < values[i].size(); ++j) {
+			int valueMap = symbols[values[i][j]];
+			int valuePow = pow(10, values[i].size() - 1 - j);
 			res[i] += (valueMap * valuePow);
 		}
 	}
+
 	if (res[0] + res[1] == res[2]) {
-		int count = 0;
-		for (auto it : vect) {
-			for (auto jt : it) {
-				std::cout << mmap.at(jt);
-			}
-			if (count == 0) {
-				std::cout << " + ";
-				count++;
-			}
-			else if (count == 1) {
-				std::cout << " = ";
-				count++;
-			}
-		}
-		if (res[0] + res[1] == res[2]) {
-			std::cout << " <=======";
-		}
-		std::cout << '\n';
+		print(symbols, values);
 	}
 }
 
-void second_func(std::vector<int>& vect, int& i) {
-	if (vect[vect.size() - 1] == 10 && i > 0) {
+void generateNum(std::vector<int>& vect, int& i) {
+	if (vect[vect.size() - 1] == MAXSYMBOLS && i > 0) {
 		--i;
 		++vect[i];
 		for (int j = i; j < vect.size() - 1; ++j) {
 			vect[j + 1] = vect[j] + 1;
 		}
-		if (vect[vect.size() - 1] == 10 && i > 0) {
-			second_func(vect, i);
+		if (vect[vect.size() - 1] == MAXSYMBOLS && i > 0) {
+			generateNum(vect, i);
 		}
 		i = vect.size() - 1;
 	}
 }
 
-
 int main()
 {
-	unsigned int start_time = clock();
+	std::string mainString = "";
 
-	std::string mainString = "a + b = c";
-	
-	//все символы из строки
-	std::map<char, int> charInString;
+	printf("%s", "Enter a expression: ");
+	getline(std::cin, mainString);
 
-	//вектор, содержащий по-отдельности каждое число (набор символов), которое представлено в строке mainString
-	std::vector<std::vector<char>> expres(3);
-	int count = 0;
+	//последовательно считанные, неповторяющиеся символы
+	//a - symbols[0]
+	//b - symbols[1]
+	//c - symbols[2]
+	//d - symbols[3]
+	std::vector<int> symbols;
+
+	//vector include all values: where ab + c = d
+	//a - values[0]
+	//b - values[1]
+	//c - values[2]
+	//d - values[3]
+	std::vector< std::vector<int> > values(3);
+
+	//init values, symbols
+	int newCount = 0;
+	int indexValue = 0;
+	std::string allValues = "";
 	for (auto it = mainString.begin(); it != mainString.end(); ++it) {
 		if (isalpha(*it)) {
-			charInString.insert(std::pair<char, int>(*it, 0));
-			expres[count].push_back(*it);
+
+			if (allValues.find(*it) == std::string::npos) {
+				allValues += *it;
+				symbols.push_back(indexValue++);
+				values[newCount].push_back(symbols.size() - 1);
+			}
+			else {
+				int j = allValues.find(*it);
+				values[newCount].push_back(j);
+			}
 		}
-		else if (!isspace(*it)) {
-			++count;
+		else if (!isspace(*it) && (*it == '+' || *it == '=')) {
+			++newCount;
 		}
 	}
 
-	//инициализируем все переменные цифрами от 0 до 8
-	int countVal = 0;
-	for (auto it = charInString.begin(); it != charInString.end(); ++it) {
-		it->second = countVal++;
+	if (symbols.size() > MAXSYMBOLS) {
+		printf("%s", "More then 10 variables cann't");
+		return 1;
 	}
 
-	//вектор необходим для генерации чисел функции next_permutation
-	//короче код говно, нужно заново все писать
-
-
-	std::vector<int> vectс;// = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-	for (int i = 0; i < charInString.size(); ++i) {
-		vectс.push_back(i);
-	}
-
-	int index = vectс.size() - 1;
+	//equal count num arg and result
+	bool isContinue = (values[2].size() > values[0].size());
+	int index = symbols.size() - 1;
 
 	do {
 		do {
-			int i = 0;
-			for (auto it = charInString.begin(); it != charInString.end(); ++it) {
-				it->second = vectс[i++];
-				//std::cout << vectс[i++];
+
+			//if sum first num more then num result then continue
+			if (!isContinue) {
+				if (symbols.at(values[0][0]) + symbols.at(values[1][0]) > symbols.at(values[2][0])) {
+					continue;
+				}
 			}
-			//std::cout << "\n";
-			result(charInString, expres);
-		} while (next_permutation(vectс.begin(), vectс.end()));
-		
-		//print(vect);
-		vectс[index]++;
-		second_func(vectс, index);
-	} while (vectс[vectс.size() - 1] != 10);
-	unsigned int end_time = clock();
-	std::cout << (end_time - start_time) / 1000.f;
-	/*myMap.at('a') = 2;
-	myMap.at('b') = 7;
-	myMap.at('c') = 5;
-	myMap.at('d') = 4;
-	myMap.at('e') = 0;
-	myMap.at('f') = 3;
-	myMap.at('g') = 9;
-	myMap.at('h') = 1;
-	myMap.at('i') = 8;*/
+			else {
+				if ((symbols.at(values[2][0]) > 1) ||
+					(symbols.at(values[2][0]) == 0 && symbols.at(values[0][0]) + symbols.at(values[1][0]) > symbols.at(values[2][1]))) {
+					continue;
+				}
+			}
 
 
-	/*auto mmmm = myMap;
-	auto vvvv = expres;
-	auto test1 = 0;
-	result(myMap, expres);*/
+			result(symbols, values);
+		} while (next_permutation(symbols.begin(), symbols.end()));
+
+		symbols[index]++;
+		generateNum(symbols, index);
+	} while (symbols[symbols.size() - 1] != 10);
+
+	return 0;
 }
