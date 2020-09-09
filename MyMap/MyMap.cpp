@@ -63,7 +63,7 @@ void generateNum(std::vector<int>& vect, int& i) {
 bool isCorrectString(const std::string& str) {
 	if (str.empty()) return false;
 
-	std::regex regular("([a-z]+)(\\+)([a-z]+)(\\=)([a-z]+)");
+	std::regex regular("([a-z ]+)(\\+)([a-z ]+)(\\=)([a-z ]+)");
 	return std::regex_match(str.c_str(), regular);
 }
 
