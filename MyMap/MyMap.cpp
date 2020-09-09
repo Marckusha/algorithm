@@ -2,11 +2,10 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <ctime>
 #include <cstdio>
+#include <exception>
 #include <sstream>
-
-using namespace std;
+#include <regex>
 
 const int MAXSYMBOLS = 10;
 
@@ -61,6 +60,13 @@ void generateNum(std::vector<int>& vect, int& i) {
 	}
 }
 
+bool isCorrectString(const std::string& str) {
+	if (str.empty()) return false;
+
+	std::regex regular("([a-z]+)(\\+)([a-z]+)(\\=)([a-z]+)");
+	return std::regex_match(str.c_str(), regular);
+}
+
 int main()
 {
 	std::string mainString = "";
@@ -86,50 +92,43 @@ int main()
 	int newCount = 0;
 	int indexValue = 0;
 	std::string allValues = "";
-	for (auto it = mainString.begin(); it != mainString.end(); ++it) {
-		if (isalpha(*it)) {
 
-			if (allValues.find(*it) == std::string::npos) {
-				allValues += *it;
-				symbols.push_back(indexValue++);
-				values[newCount].push_back(symbols.size() - 1);
+	try {
+		if (!isCorrectString(mainString)) {
+			throw std::exception("uncorrected input expression\n");
+		}
+
+		for (auto it = mainString.begin(); it != mainString.end(); ++it) {
+			if (isalpha(*it)) {
+
+				if (allValues.find(*it) == std::string::npos) {
+					allValues += *it;
+					symbols.push_back(indexValue++);
+					values[newCount].push_back(symbols.size() - 1);
+				}
+				else {
+					int j = allValues.find(*it);
+					values[newCount].push_back(j);
+				}
 			}
-			else {
-				int j = allValues.find(*it);
-				values[newCount].push_back(j);
+			else if (!isspace(*it) && (*it == '+' || *it == '=')) {
+				++newCount;
 			}
 		}
-		else if (!isspace(*it) && (*it == '+' || *it == '=')) {
-			++newCount;
+
+		if (symbols.size() > MAXSYMBOLS) {
+			throw std::exception("more then 10 variables cann't");
 		}
 	}
-
-	if (symbols.size() > MAXSYMBOLS) {
-		printf("%s", "More then 10 variables cann't");
+	catch (const std::exception& exc) {
+		std::cerr << exc.what() << std::endl;
 		return 1;
 	}
 
-	//equal count num arg and result
-	bool isContinue = (values[2].size() > values[0].size());
 	int index = symbols.size() - 1;
 
 	do {
 		do {
-
-			//if sum first num more then num result then continue
-			if (!isContinue) {
-				if (symbols.at(values[0][0]) + symbols.at(values[1][0]) > symbols.at(values[2][0])) {
-					continue;
-				}
-			}
-			else {
-				if ((symbols.at(values[2][0]) > 1) ||
-					(symbols.at(values[2][0]) == 0 && symbols.at(values[0][0]) + symbols.at(values[1][0]) > symbols.at(values[2][1]))) {
-					continue;
-				}
-			}
-
-
 			result(symbols, values);
 		} while (next_permutation(symbols.begin(), symbols.end()));
 
