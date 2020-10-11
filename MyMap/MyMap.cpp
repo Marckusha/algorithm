@@ -1,15 +1,14 @@
 ﻿#include "Header.h"
+#include <algorithm>
 
 int main()
 {
 	std::vector<int> vectFreeValues = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-	std::string mainString = "";
+	std::string mainString;
 
 	printf("%s", "Enter a expression: ");
 	getline(std::cin, mainString);
 
-	//последовательно считанные, неповторяющиеся символы
 	//a - symbols[0]
 	//b - symbols[1]
 	//c - symbols[2]
@@ -17,7 +16,6 @@ int main()
 	std::vector<int> symbols;
 
 	int newCount = 0;
-	int indexValue = 0;
 	static const int MAXSYMBOLS = 10;
 	std::string allValues = "";
 
@@ -32,7 +30,6 @@ int main()
 				if (allValues.find(*it) == std::string::npos) {
 					allValues += *it;
 					symbols.push_back(EMPTY);
-					indexValue++;
 					MAIN_VALUES[newCount].push_back(symbols.size() - 1);
 				}
 				else {
@@ -55,15 +52,20 @@ int main()
 	}
 
 	/**
-	 *	Пример: ab+cd=adg, где 01 + 23 = 034,
-	 *	где каждому символу присваивается уникальный символ
+	 *	Example: ab+cd=adg, where 01 + 23 = 024,
 	 *	vectExpress[0] - first=1, second=3, result=4
 	 *	vectExpress[1] - first=0, second=2, result=3
 	 * 	vectExpress[2] - first=EMPTY(-1), second=EMPTY(-1), result=0
 	*/
 	auto vectorExpression = getVectorExpression(MAIN_VALUES);
 
-	function(vectFreeValues, symbols, vectorExpression.begin(), vectorExpression.end());
+	mainFunction(vectFreeValues, symbols, vectorExpression.begin(), vectorExpression.end());
+
+	std::sort(RESULT.begin(), RESULT.end());
+
+	for (auto& x : RESULT) {
+		std::cout << x << std::endl;
+	}
 
 	return 0;
 }

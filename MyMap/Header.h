@@ -13,6 +13,7 @@
  *  d - values[2][0] = 3
  */
 std::vector< std::vector<int> > MAIN_VALUES(3);
+std::vector<std::string> RESULT;
 
 static const int EMPTY = -1;
 
@@ -36,7 +37,7 @@ bool isCorrectString(const std::string& str) {
 }
 
 /**
- * @brief Возвращает вектор всех выражений
+ * @brief return vector of all expression
  */
 std::vector<expression> getVectorExpression(const std::vector< std::vector<int> >& values) {
 
@@ -75,30 +76,27 @@ std::vector<expression> getVectorExpression(const std::vector< std::vector<int> 
 	return result;
 }
 
-void print(const std::vector<int>& symbols) {
+void addToResult(const std::vector<int>& symbols) {
 
 	int count = 0;
+	std::string str;
 
 	for (auto it : MAIN_VALUES) {
 		for (auto jt : it) {
-			printf("%d", symbols[jt]);
+			str += std::to_string(symbols[jt]);
 		}
 		if (count == 0) {
-			printf("%s", " + ");
 			count++;
+			str += " + ";
 		}
 		else if (count == 1) {
-			printf("%s", " = ");
 			count++;
+			str += " = ";
 		}
 	}
-	printf("%s", "\n");
+	RESULT.push_back(str);
 }
 
-
-/**
- * @brief Проверяет является ли выражение истинным (f + s) % 10 == r
- */
 bool isCorrectValue(const expression& exp) {
 	if ((exp.first + exp.second) % 10 == exp.result) {
 		return true;
@@ -107,15 +105,15 @@ bool isCorrectValue(const expression& exp) {
 }
 
 /**
- * @brief Главная функция подбора значений
+ * @brief main function for generating values
  *
- * @param values Вектор свободных цифр
- * @param symbols Вектор индексов символов
- * @param currIterator Итератор на текущее выражение
- * @param endIterator Итератор на конец выражения
- * @param rest В этот параметр передается 1, если (first + second) > 9
+ * @param values Vector containing free numeral
+ * @param symbols Vector containing the character index
+ * @param currIterator 
+ * @param endIterator 
+ * @param rest  If express (first + second) > 9 then rest=1, else = 0
  */
-void function(std::vector<int>& values, std::vector<int>& symbols, std::vector<expression>::iterator currIterator, std::vector<expression>::iterator endIterator, int rest = 0) {
+void mainFunction(std::vector<int>& values, std::vector<int>& symbols, std::vector<expression>::iterator currIterator, std::vector<expression>::iterator endIterator, int rest = 0) {
 
 	for (int i = 0; i < values.size(); ++i) {
 
@@ -167,11 +165,11 @@ void function(std::vector<int>& values, std::vector<int>& symbols, std::vector<e
 					int val = (mainExpress.first + mainExpress.second) / 10 + mainExpress.result / 10;
 
 					if (++currIterator == endIterator && val == 0) {
-						print(symbols);
+						addToResult(symbols);
 
 					}
 					else if (currIterator != endIterator) {
-						function(values, symbols, currIterator, endIterator, val);
+						mainFunction(values, symbols, currIterator, endIterator, val);
 					}
 					--currIterator;
 				}
@@ -180,7 +178,7 @@ void function(std::vector<int>& values, std::vector<int>& symbols, std::vector<e
 						int val = (mainExpress.first + mainExpress.second) / 10;
 
 						if (++currIterator == endIterator && val == 0) {
-							print(symbols);
+							addToResult(symbols);
 						}
 						--currIterator;
 					}
